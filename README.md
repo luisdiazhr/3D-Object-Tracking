@@ -8,7 +8,7 @@ This is implemented in the method `matchBoundinBoxes` in `camFusion_Student.cpp`
 ## 2. Compute lidar-based TTC
 *Lines 206-224 in camFusion_Student.cpp*
 
-In each frame, I took the median x-distance to reduce the impact of outlier lidar points on my TTC estimate. With the constant velocity model, the key equation is as follows.
+Implemented in the function `computeTTCLidar` in `camFusion_Student.cpp`. This code is basically the same that I saw in the lectures. In each frame, the median x-distance is calculated to reduce the impact of outlier lidar points on the TTC estimate. With the constant velocity model, the key equation is as follows.
 ```
 TTC = d1 * (1.0 / frameRate) / (d0 - d1);
 ```    
@@ -17,16 +17,18 @@ TTC = d1 * (1.0 / frameRate) / (d0 - d1);
 
 This function is implemented in `clusterKptMatchesWithROI ` in `camFusion_Student.cpp`. Every matched keypoint pair in an image is associated with a `BoundingBox` depending on if the keypoint falls within the bounding box region-of-interest (ROI). The resulting keypoints are stored in the property `keypoints` and `kptMatches` within the data structure `BoundingBox`.
 
-## 4. Compute mono camera-based TTC
+## 4. Compute camera-based TTC
 *Lines 149-192 in camFusion_Student.cpp*
 
-The code for this function computeTTCCamera draws heavily on the example provided in an earlier lesson. It uses distance ratios on keypoints matched between frames to determine the rate of scale change within an image. This rate of scale change can be used to estimate the TTC.
+The function `computeTTCCamera` in `camFusion_Student.cpp` is basically the code provided in the lectures. It uses distance ratios on keypoints matched between frames to determine the rate of scale change within an image. This rate of scale change can be used to estimate the TTC.
 
 `TTC = (-1.0 / frameRate) / (1 - medianDistRatio)`
 
-## 5. 
+## 5. Performance Evaluation 1
 
-## 6. Performance Evaluation
+I honestly did not find any example where the TTC estimate of the sensor does not seem plausible. I recorded all of the data and can be seen in the file `build/Performance.csv`. 
+
+## 6. Performance Evaluation 2
 Different combinations of detector-descriptor are tested. Results are stored in the file `build/Performance.csv`. One of the most accurate combinations is the **AKAZE-AKAZE** combination. The difference between the *TTCLidar* and *TTCCamera* in average is 1.15 seconds which shows a pretty accurate tracker. The next table shows results for other combinations:
 
 | Detector Type | Descriptor Type | Frame index | TTC Lidar | TTC Camera | Difference |
