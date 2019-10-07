@@ -1,37 +1,33 @@
 # 3D-Object-Tracking
 
 ## 1. Match 3D objects
+*Lines 227-280 in camFusion_Student.cpp*
 
 This is implemented in the method `matchBoundinBoxes` in `camFusion_Student.cpp`. In order to track pairs of bound box IDs, a variable mmap of type `std::multimap<int,int>` is used. Once the multimap is complete, I count the greatest number of matches in the multimap, where each element is `{key=currBoxID, val=prevBoxID}`. I used a threshold  of 30 as a minimum amount of keypoint correspondences to determine whether the bounding boxes are indeed the same.
- 
-*Lines 224-284 in camFusion_Student.cpp*
 
 ## 2. Compute lidar-based TTC
-*Lines 202-221 in camFusion_Student.cpp*
+*Lines 206-224 in camFusion_Student.cpp*
 
 In each frame, I took the median x-distance to reduce the impact of outlier lidar points on my TTC estimate. With the constant velocity model, the key equation is as follows.
 ```
 TTC = d1 * (1.0 / frameRate) / (d0 - d1);
-```
-*Lines 192-199 in camFusion_Student.cpp*
-     
+```    
 ## 3. Associate keypoint matches with bounding boxes
-*Lines 133-142 in camFusion_Student.cpp*
+*Lines 134-145 in camFusion_Student.cpp*
 
 This function is implemented in `clusterKptMatchesWithROI ` in `camFusion_Student.cpp`. Every matched keypoint pair in an image is associated with a `BoundingBox` depending on if the keypoint falls within the bounding box region-of-interest (ROI). The resulting keypoints are stored in the property `keypoints` and `kptMatches` within the data structure `BoundingBox`.
 
 ## 4. Compute mono camera-based TTC
-*Lines 145-189 in camFusion_Student.cpp*
+*Lines 149-192 in camFusion_Student.cpp*
 
 The code for this function computeTTCCamera draws heavily on the example provided in an earlier lesson. It uses distance ratios on keypoints matched between frames to determine the rate of scale change within an image. This rate of scale change can be used to estimate the TTC.
 
-`TTC = (-1.0 / frameRate) / (1 - medianDistRatio);`
-Like the lidar TTC estimation, this function uses the median distance ratio to avoid the impact of outliers. Unfortunately this approach is still vulnerable to wild miscalculations (-inf, NaN, etc.) if there are too many mismatched keypoints. Note also that this algorithm calculates the Euclidean distance for every paired combination of keypoints within the bounding box, O(n^2) on the number of keypoints.
+`TTC = (-1.0 / frameRate) / (1 - medianDistRatio)`
 
 ## 5. 
 
 ## 6. Performance Evaluation
-Different combinations of detector-descriptor are tested. Results are stored in the file `build/Performance.csv`. One of the most accurate combinations is the AKAZE-AKAZE combination. The difference between the TTCLidar and TTCCamera in average is 1.15 seconds which shows a pretty accurate model. The next table shows results for other combinations.
+Different combinations of detector-descriptor are tested. Results are stored in the file `build/Performance.csv`. One of the most accurate combinations is the **AKAZE-AKAZE** combination. The difference between the *TTCLidar* and *TTCCamera* in average is 1.15 seconds which shows a pretty accurate tracker. The next table shows results for other combinations:
 
 | Detector Type | Descriptor Type | Frame index | TTC Lidar | TTC Camera | Difference |
 |---------------|-----------------|-------------|-----------|------------|------------|
