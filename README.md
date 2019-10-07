@@ -1,9 +1,10 @@
 # 3D-Object-Tracking
 
 ## 1. Match 3D objects
-*Lines 224-284 in camFusion_Student.cpp*
 
-As suggested, I used a `std::multimap<int,int>` to track pairs of bounding box IDs. I then counted the keypoint correspondences per box pair to determine the best matches between frames. Count the greatest number of matches in the multimap, where each element is `{key=currBoxID, val=prevBoxID}`
+This is implemented in the method `matchBoundinBoxes` in `camFusion_Student.cpp`. In order to track pairs of bound box IDs, a variable mmap of type `std::multimap<int,int>` is used. Once the multimap is complete, I count the greatest number of matches in the multimap, where each element is `{key=currBoxID, val=prevBoxID}`. I used a threshold  of 30 as a minimum amount of keypoint correspondences to determine whether the bounding boxes are indeed the same.
+ 
+*Lines 224-284 in camFusion_Student.cpp*
 
 ## 2. Compute lidar-based TTC
 *Lines 202-221 in camFusion_Student.cpp*
@@ -13,21 +14,11 @@ In each frame, I took the median x-distance to reduce the impact of outlier lida
 TTC = d1 * (1.0 / frameRate) / (d0 - d1);
 ```
 *Lines 192-199 in camFusion_Student.cpp*
-
-To calculate the median, I built a helper function to sort the vector of lidar points.
-```
-void sortLidarPointsX(std::vector<LidarPoint> &lidarPoints)
-{
-    // This std::sort with a lambda mutates lidarPoints, a vector of LidarPoint
-    std::sort(lidarPoints.begin(), lidarPoints.end(), [](LidarPoint a, LidarPoint b) {
-        return a.x < b.x;  // Sort ascending on the x coordinate only
-    });
-}
-```                      
+     
 ## 3. Associate keypoint matches with bounding boxes
 *Lines 133-142 in camFusion_Student.cpp*
 
-This function is called for each bounding box, and it loops through every matched keypoint pair in an image. If the keypoint falls within the bounding box region-of-interest (ROI) in the current frame, the keypoint match is associated with the current BoundingBox data structure.
+This function is implemented in `clusterKptMatchesWithROI ` in `camFusion_Student.cpp`. Every matched keypoint pair in an image is associated with a `BoundingBox` depending on if the keypoint falls within the bounding box region-of-interest (ROI). The resulting keypoints are stored in the property `keypoints` and `kptMatches` within the data structure `BoundingBox`.
 
 ## 4. Compute mono camera-based TTC
 *Lines 145-189 in camFusion_Student.cpp*
